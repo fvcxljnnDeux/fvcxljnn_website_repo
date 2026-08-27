@@ -351,7 +351,7 @@ def assignImages(poem, imagesByKey):
 
     poem["images"] = sorted(images, key=getImageNumber)
 
-def build_html_page(poem, poemsBySourceStem, previousPoem=None, nextPoem=None):
+def buildPoemPage(poem, poemsBySourceStem, previousPoem=None, nextPoem=None):
     safeTitle = html.escape(poem["title"])
 
     poemHTML = markdown.markdown(poem["poemText"], extensions=["nl2br"])
@@ -380,7 +380,7 @@ def build_html_page(poem, poemsBySourceStem, previousPoem=None, nextPoem=None):
 
     if poem["images"]:
         for image in poem["images"]:
-            imagesHTML += f"""<img class="poem-image" src="../assets/poem_images/{image.name}" alt="Bild zum Gedicht">"""
+            imagesHTML += f"""<img class="poem-image" src="../../assets/poem_images/{image.name}" alt="Bild zum Gedicht">"""
 
         imagesSectionHTML = f"""<div class="poem-images">
             {imagesHTML}
@@ -463,19 +463,19 @@ def build_html_page(poem, poemsBySourceStem, previousPoem=None, nextPoem=None):
     <meta charset="UTF-8">
     <title>{safeTitle}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" sizes="32x32" href="../assets/grafiken/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../assets/grafiken/favicon-16x16.png">
-    <link rel="shortcut icon" href="../assets/grafiken/favicon.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="180x180" href="../assets/grafiken/favicon_apple-touch-icon-180x180.png">
-    <link rel="icon" href="../assets/grafiken/logo.svg" type="image/svg+xml" sizes="any">
-    <link rel="stylesheet" type="text/css" href="../style.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="../../assets/grafiken/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../assets/grafiken/favicon-16x16.png">
+    <link rel="shortcut icon" href="../../assets/grafiken/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../assets/grafiken/favicon_apple-touch-icon-180x180.png">
+    <link rel="icon" href="../../assets/grafiken/logo.svg" type="image/svg+xml" sizes="any">
+    <link rel="stylesheet" type="text/css" href="../../style.css">
 </head>
 
 <body>
     <header>
         <nav>
-            <a href="../index.html">Startseite</a>
-            <a href="../daily-poems.html">Daily Poem Übersicht</a>
+            <a href="../../index.html">Startseite</a>
+            <a href="../gallery.html">Galerie</a>
             {previousHTML}
             {nextHTML}
         </nav>
@@ -514,7 +514,66 @@ def build_html_page(poem, poemsBySourceStem, previousPoem=None, nextPoem=None):
 
     return htmlPage
 
-def buildOverviewPage(poems):
+def buildPoemsIndexPage(introductionMarkdown):
+    lines = introductionMarkdown.splitlines()
+    
+    title = None
+    contentLines = []
+    
+    for line in lines:
+        if title is None and line.startswith("# "):
+            title = line[2:].strip()
+            continue
+    
+        if title is not None:
+            contentLines.append(line)
+    
+    content = "\n".join(contentLines).strip()
+
+    safeTitle = html.escape(title)
+    contentHTML = markdown.markdown(content, extensions=["nl2br"])
+
+    htmlPage = f"""<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Poems</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/grafiken/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/grafiken/favicon-16x16.png">
+    <link rel="shortcut icon" href="../assets/grafiken/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/grafiken/favicon_apple-touch-icon-180x180.png">
+    <link rel="icon" href="../assets/grafiken/logo.svg" type="image/svg+xml" sizes="any">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="../index.html">Startseite</a>
+        </nav>
+    </header>
+    
+    <main class="site-main">
+        <section class="poems-introduction">
+            <h1>{safeTitle}</h1>
+            
+            <div class="poems-introduction-text">
+                {contentHTML}
+            </div>
+        </section>
+        
+        <nav class="poems-navigation">
+            <a href="gallery.html">Galerie</a>
+            <a href="inspirations.html">Inspirationen</a>
+        </nav>
+    </main>
+</body>
+</html>"""
+
+    return htmlPage
+
+def buildPoemsGalleryPage(poems):
     poemLinks = ""
 
     for poem in poems:
@@ -522,7 +581,7 @@ def buildOverviewPage(poems):
 
         poemLinks += (
             f'<li>'
-            f'<a href="poems/{poem["fileName"]}.html">{safeTitle}</a>'
+            f'<a href="works/{poem["fileName"]}.html">{safeTitle}</a>'
             f'</li>\n'
         )
 
@@ -530,19 +589,19 @@ def buildOverviewPage(poems):
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Daily Poems</title>
+    <title>Galerie</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/grafiken/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/grafiken/favicon-16x16.png">
-    <link rel="shortcut icon" href="/assets/grafiken/favicon.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/grafiken/favicon_apple-touch-icon-180x180.png">
-    <link rel="icon" href="/assets/grafiken/logo.svg" type="image/svg+xml" sizes="any">
-    <link rel="stylesheet" type="text/css" href="/style.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/grafiken/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/grafiken/favicon-16x16.png">
+    <link rel="shortcut icon" href="../assets/grafiken/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/grafiken/favicon_apple-touch-icon-180x180.png">
+    <link rel="icon" href="../assets/grafiken/logo.svg" type="image/svg+xml" sizes="any">
+    <link rel="stylesheet" type="text/css" href="../style.css">
 </head>
 
 <body>
     <main>
-        <h1>Daily Poems</h1>
+        <h1>Galerie</h1>
         <ul>
             {poemLinks}
         </ul>
@@ -552,16 +611,191 @@ def buildOverviewPage(poems):
 
     return htmlPage
 
-poemDirectory = Path(r"D:\Obsidian\Drip Vault\(2) Poems")
-imageDirectory = Path(r"C:\Users\fvcxljnn\iCloudDrive\Daily Poem Snaps")
-websiteImageDirectory = Path(r"B:\fvcxljnn_website\fvcxljnn_website_repo\assets\poem_images")
+def parseInspirations(inspirationsMarkdown):
+    inspirations = {
+        "title": None,
+        "artists": []
+    }
 
+    pageTitleFound = False
+    currentArtist = None
+    currentWork = None
+    currentSection = None
+
+    for line in inspirationsMarkdown.splitlines():
+        if line.startswith("# "):
+            heading = line[2:].strip()
+
+            if not pageTitleFound:
+                inspirations["title"] = heading
+                pageTitleFound = True
+                continue
+
+            currentArtist = {
+                "name": heading,
+                "works": []
+            }
+
+            inspirations["artists"].append(currentArtist)
+            
+            currentWork = None
+            currentSection = None
+            continue
+
+        if line.startswith("## "):
+            if currentArtist is None:
+                continue
+
+            currentWork = {
+                "title": line[3:].strip(),
+                "links": "",
+                "comment": ""
+            }
+
+            currentArtist["works"].append(currentWork)
+
+            currentSection = None
+            continue
+
+        if line.startswith("### "):
+            if currentWork is None:
+                continue
+
+            heading = line[4:].strip()
+
+            if heading == "Links:":
+                currentSection = "links"
+            elif heading == "Anmerkungen:":
+                currentSection = "comment"
+            else:
+                currentSection = None
+
+            continue
+
+        if currentWork is not None and currentSection is not None:
+            currentWork[currentSection] += line + "\n"
+
+    for artist in inspirations["artists"]:
+        for work in artist["works"]:
+            work["links"] = work["links"].strip()
+            work["comment"] = work["comment"].strip()
+
+    return inspirations
+
+def buildPoemsInspirationsPage(inspirations):
+    safeTitle = html.escape(inspirations["title"])
+
+    artistsHTML = ""
+
+    for artist in inspirations["artists"]:
+        safeArtistName = html.escape(artist["name"])
+
+        worksHTML = ""
+
+        for work in artist["works"]:
+            safeWorkTitle = html.escape(work["title"])
+
+            linksHTML = ""
+            commentHTML = ""
+
+            if work["links"]:
+                linksHTML = markdown.markdown(work["links"])
+
+            if work["comment"]:
+                commentHTML = markdown.markdown(work["comment"], extensions=["nl2br"])
+
+            if work["links"] or work["comment"]:
+                worksHTML += f"""<details class="inspirations-work">
+                    <summary class="inspirations-work-title">
+                        {safeWorkTitle}
+                    </summary>
+                    
+                    <div class="inspirations-links">
+                        {linksHTML}
+                    </div>
+
+                    <div class="inspirations-comment">
+                        {commentHTML}
+                    </div>
+                </details>"""
+            else:
+                worksHTML += f"""<p class="inspirations-work-title">
+                    {safeWorkTitle}
+                </p>"""
+
+        artistsHTML += f"""<section class="inspirations-artist">
+            <h2>{safeArtistName}</h2>
+            
+            {worksHTML}
+        </section>"""
+
+    htmlPage = f"""<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>{safeTitle}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/grafiken/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/grafiken/favicon-16x16.png">
+    <link rel="shortcut icon" href="../assets/grafiken/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/grafiken/favicon_apple-touch-icon-180x180.png">
+    <link rel="icon" href="../assets/grafiken/logo.svg" type="image/svg+xml" sizes="any">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="../index.html">Startseite</a>
+            <a href="index.html">Poems</a>
+        </nav>
+    </header>
+    
+    <main class="site-main">
+        <h1>{safeTitle}</h1>
+        
+        {artistsHTML}
+    </main>
+</body>
+</html>"""
+
+    return htmlPage
+
+poemSourceDirectory = Path(r"D:\Obsidian\Drip Vault\(2) Poems")
+imageSourceDirectory = Path(r"C:\Users\fvcxljnn\iCloudDrive\Daily Poem Snaps")
+
+poemsIntroductionSource = poemSourceDirectory / "Introduction.md"
+poemsInspirationsSource = poemSourceDirectory / "Inspirations.md"
+
+websiteDirectory = Path(r"B:\fvcxljnn_website\fvcxljnn_website_repo")
+
+poemsDirectory = websiteDirectory / "poems"
+worksDirectory = poemsDirectory / "works"
+worksDirectory.mkdir(parents=True, exist_ok=True)
+
+poemsIndexFile = poemsDirectory / "index.html"
+poemsDailyPoemsFile = poemsDirectory / "daily-poems.html"
+poemsGalleryFile = poemsDirectory / "gallery.html"
+poemsInspirationsFile = poemsDirectory / "inspirations.html"
+
+websiteImageDirectory = websiteDirectory / "assets" / "poem_images"
 websiteImageDirectory.mkdir(parents=True, exist_ok=True)
 
-poemFiles = list(poemDirectory.rglob("*.md"))
+numberedPoemSourceDirectories = [
+    directory
+    for directory in poemSourceDirectory.iterdir()
+    if directory.is_dir()
+    and re.match(r"^\d{2} - ", directory.name)
+]
+
+poemFiles = []
+
+for directory in numberedPoemSourceDirectories:
+    poemFiles.extend(directory.rglob("*.md"))
+
 imageFiles = [
     file
-    for file in imageDirectory.rglob("*")
+    for file in imageSourceDirectory.rglob("*")
     if file.is_file() and file.suffix.lower() == ".jpg"
 ]
 
@@ -572,8 +806,6 @@ invalidFiles = []
 
 poemsBySourceStem = {}
 imagesByKey = {}
-
-outputDirectory = Path(r"B:\fvcxljnn_website\fvcxljnn_website_repo\poems")
 
 for imageFile in imageFiles:
     key = getImageKey(imageFile)
@@ -623,15 +855,25 @@ for i, poem in enumerate(visiblePoems):
     if i < len(visiblePoems) - 1:
         nextPoem = visiblePoems[i + 1]
 
-    htmlPage = build_html_page(poem, poemsBySourceStem, previousPoem, nextPoem)
+    htmlPage = buildPoemPage(poem, poemsBySourceStem, previousPoem, nextPoem)
 
-    outputFile = outputDirectory / f'{poem["fileName"]}.html'
+    outputFile = worksDirectory / f'{poem["fileName"]}.html'
 
     outputFile.write_text(htmlPage, encoding="utf-8")
 
-overviewHTML = buildOverviewPage(visiblePoems)
-overviewFile = Path(r"B:\fvcxljnn_website\fvcxljnn_website_repo\daily-poems.html")
-overviewFile.write_text(overviewHTML, encoding="utf-8")
+poemsIntroductionMarkdown = poemsIntroductionSource.read_text(encoding="utf-8")
+
+poemsIndexHTML = buildPoemsIndexPage(poemsIntroductionMarkdown)
+poemsIndexFile.write_text(poemsIndexHTML, encoding="utf-8")
+
+poemsGalleryHTML = buildPoemsGalleryPage(visiblePoems)
+poemsGalleryFile.write_text(poemsGalleryHTML, encoding="utf-8")
+
+poemsInspirationsMarkdown = poemsInspirationsSource.read_text(encoding="utf-8")
+poemsInspirationsData = parseInspirations(poemsInspirationsMarkdown)
+
+poemsInspirationsHTML = buildPoemsInspirationsPage(poemsInspirationsData)
+poemsInspirationsFile.write_text(poemsInspirationsHTML, encoding="utf-8")
 
 print("=== GENERIERUNG ABGESCHLOSSEN ===")
 print()
